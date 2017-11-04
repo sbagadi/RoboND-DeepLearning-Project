@@ -24,11 +24,13 @@ in the class, Semantic Segmentation is the answer (using a Fully Convolutional
 Network).
 
 A FCN (Fully Convolutional Network) consists of a set of encoders followed by a
-1x1 convolution followed by a set of decoders. I started by filling out the
-encoder and decoder layers for the model in the notebook provided for the
-project.
+1x1 convolution followed by a set of decoders.
 
-Encoder block:
+### Encoder
+
+An encoder is a simple convolution layer. A set of encoder forms a CNN discussed
+above. The following code snippet shows an encoder block using Keras.
+
 ```
 def encoder_block(input_layer, filters, strides):
     
@@ -38,7 +40,29 @@ def encoder_block(input_layer, filters, strides):
     return output_layer
 ```
 
-Decoder block:
+### Decoder
+
+A decoder block is used to upsample the images from the output of the encoder
+block and 1 by 1 layer to a higher resolution. By upsampling the image multiple
+times, we want to get the original size of the image back. In essence, the
+decoder is trying to semantically project the lower resolution features learned
+by the encoder into a higher resolution space to get a dense classification.
+
+We can upsample the image using multiple techniques, transposed convolution and
+bilinear upsampling are a couple of them discussed in the lesson. Unpoolingis
+another technique widely used for semantic segmentation. For the project we used
+the bilinear upsampling technique to upsample the image.
+
+Due to how encoding works (looking at smaller and smaller patches of the image),
+even when we upsample the image to the original size, some of the information is
+lost. To solve this issue, we use skip connections, that is, by connecting the
+output of one layer in the encoder block to an upsampled layer of the same size
+in the decoder block, we can retain more information about the original image.
+This is done by element wise addition operation.
+
+The following code snippet shows an encoder block with skipped connection to the
+large input layer.
+
 ```
 def decoder_block(small_ip_layer, large_ip_layer, filters):
     
@@ -209,5 +233,3 @@ of our target.
 - Collect more data samples.
 - Train the model on a device with more processing power (mostly to try
   increasing the depth and batch size).
-
-
